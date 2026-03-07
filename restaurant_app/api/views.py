@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework import status
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -8,13 +8,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import ensure_csrf_cookie
 from restaurant_app.models import (
     Table, MenuItem, Order, OrderItem, StaffProfile
 )
 
 from restaurant_app.api.serializers import (
     MenuItemSerializer,
-    OrderSerializer, TableSerializer
+    MenuItemCreateSerializer,
+    OrderSerializer,
+    TableSerializer,
 )
 
 class TestAPIView(APIView):
@@ -24,6 +27,7 @@ class TestAPIView(APIView):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([]) 
 def start_order(request):
     table_id = request.data.get('table_id')
 
@@ -51,8 +55,12 @@ def menu_list(request):
 
     return Response(serializer.data)
 
+
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([]) 
 def add_item_to_order(request):
     order_id = request.data.get('order_id')
     item_id = request.data.get('item_id')
@@ -125,7 +133,7 @@ def order_detail(request, order_id):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([AllowAny])     
 def all_orders(request):
     orders = Order.objects.exclude(status='paid').order_by('-created_at')
     serializer = OrderSerializer(orders, many=True)
@@ -187,9 +195,10 @@ def table_list(request):
 
 
 
-
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([])  
 def login_view(request):
     username = request.data.get('username')
     password = request.data.get('password')
@@ -215,7 +224,6 @@ def login_view(request):
 
 
 
-
 def check_role(user, allowed_roles):
     try:
         role = user.staffprofile.role
@@ -223,6 +231,8 @@ def check_role(user, allowed_roles):
         return False
 
     return role in allowed_roles
+
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -240,4 +250,45 @@ def check_auth(request):
         "username": request.user.username,
         "role": request.user.staffprofile.role
     })
+
+
+@ensure_csrf_cookie
+@api_view(['GET'])
+def get_csrf(request):
+    return Response({"message": "CSRF cookie set"})
+
+
+
+@api_view(['DELETE'])
+def delete_menu_item(request, pk):
+    item = get_object_or_404(MenuItem, id=pk)
+    item.delete()
+
+    return Response({"message": "Item deleted"})
+
+
+@api_view(['PATCH'])
+def toggle_item(request, pk):
+    item = get_object_or_404(MenuItem, id=pk)
+
+    item.is_available = not item.is_available
+    item.save()
+
+    return Response({"is_available": item.is_available})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def add_menu_item(request):
+    serializer = MenuItemCreateSerializer(data=request.data)
+
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        item = serializer.save()
+        return Response(MenuItemSerializer(item).data, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 

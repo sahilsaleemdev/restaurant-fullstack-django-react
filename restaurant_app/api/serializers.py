@@ -11,6 +11,9 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name']
+
+
+        
 class MenuItemSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
 
@@ -23,6 +26,15 @@ class MenuItemSerializer(serializers.ModelSerializer):
             'image',
             'category'
         ]
+
+
+class MenuItemCreateSerializer(serializers.ModelSerializer):
+    """For creating menu items: category is sent as id (e.g. from FormData)."""
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
+
+    class Meta:
+        model = MenuItem
+        fields = ['name', 'price', 'image', 'category']
 
 
 class OrderItemSerializer(serializers.ModelSerializer):

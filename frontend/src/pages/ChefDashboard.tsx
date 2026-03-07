@@ -2,15 +2,23 @@ import { useEffect, useState } from "react";
 
 
 
-function Dashboard() {
+function ChefDashboard() {
   
 const [user, setUser] = useState<any>(null);
 const [orders, setOrders] = useState<any[]>([]);
+const csrftoken = getCookie("csrftoken");
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/orders/")
+    fetch("http://localhost:8000/api/all-orders/")
       .then((res) => res.json())
       .then((data) => setOrders(data));
+
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/api/get-csrf/", {
+      credentials: "include",
+    });
   }, []);
 
   useEffect(() => {
@@ -31,6 +39,13 @@ const [orders, setOrders] = useState<any[]>([]);
         window.location.href = "/login";
       });
   }, []);
+
+
+  function getCookie(name: string) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(";").shift();
+  }
   
 
   const handleLogout = async () => {
@@ -46,7 +61,7 @@ const [orders, setOrders] = useState<any[]>([]);
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/orders/");
+      const res = await fetch("http://localhost:8000/api/all-orders/");
       const data = await res.json();
       setOrders(data);
     } catch (error) {
@@ -61,6 +76,7 @@ const [orders, setOrders] = useState<any[]>([]);
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken || "",
         },
         body: JSON.stringify({ status }),
       });
@@ -160,4 +176,4 @@ const [orders, setOrders] = useState<any[]>([]);
   );
 }
 
-export default Dashboard;
+export default ChefDashboard;
