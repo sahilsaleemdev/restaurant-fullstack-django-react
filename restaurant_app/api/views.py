@@ -1,8 +1,10 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework import status
 from django.http import JsonResponse
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,14 +12,14 @@ from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
 from restaurant_app.models import (
-    Table, MenuItem, Order, OrderItem, StaffProfile
+    Table, MenuItem, Order, OrderItem, StaffProfile, Category
 )
 
 from restaurant_app.api.serializers import (
     MenuItemSerializer,
     MenuItemCreateSerializer,
     OrderSerializer,
-    TableSerializer,
+    TableSerializer, CategorySerializer, StaffSerializer,
 )
 
 class TestAPIView(APIView):
@@ -292,3 +294,148 @@ def add_menu_item(request):
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def category_list(request):
+    categories = Category.objects.filter(is_active=True)
+    serializer = CategorySerializer(categories, many=True)
+    return Response(serializer.data)
+
+
+
+@api_view(['GET'])
+def staff_list(request):
+
+    staff = StaffProfile.objects.select_related("user").all()
+
+    serializer = StaffSerializer(staff, many=True)
+
+    return Response(serializer.data)
+
+
+
+
+
+@api_view(['POST'])
+def add_staff(request):
+
+    username = request.data.get("username")
+    password = request.data.get("password")
+    role = request.data.get("role")
+    salary = request.data.get("salary")
+
+    if not username or not password:
+        return Response({"error": "Username and password required"}, status=400)
+
+    user = User.objects.create_user(
+        username=username,
+        password=password
+    )
+
+    StaffProfile.objects.create(
+        user=user,
+        role=role,
+        salary=salary
+    )
+
+    return Response({"message": "Staff created"})
+
+
+@api_view(['DELETE'])
+def delete_staff(request, pk):
+
+    staff = get_object_or_404(StaffProfile, id=pk)
+
+    staff.user.delete()
+
+    return Response({"message": "Staff deleted"})
+
+
+@api_view(['PATCH'])
+def update_salary(request, pk):
+
+    staff = get_object_or_404(StaffProfile, id=pk)
+
+    salary = request.data.get("salary")
+
+    staff.salary = salary
+    staff.save()
+
+    return Response({"message": "Salary updated"})
+
+
+
+
+
+
+def order_bill(request, order_id):
+
+    order = Order.objects.get(id=order_id)
+
+    rows = ""
+
+    for item in order.items.all():
+        total = item.quantity * item.menu_item.price
+        rows += f"{item.menu_item.name} x{item.quantity}    {total}<br>"
+
+    html = f"""
+    <html>
+    <head>
+    <title>Receipt</title>
+
+    <style>
+    body {{
+        font-family: monospace;
+        width: 280px;
+        margin: auto;
+    }}
+
+    .center {{
+        text-align: center;
+    }}
+
+    .line {{
+        border-top: 1px dashed black;
+        margin: 8px 0;
+    }}
+
+    </style>
+
+    <script>
+    window.onload = function() {{
+        window.print();
+    }}
+    </script>
+
+    </head>
+
+    <body>
+
+    <div class="center">
+        <h3>My Restaurant</h3>
+        Order #{order.id}<br>
+        Table {order.table.table_number}
+    </div>
+
+    <div class="line"></div>
+
+    {rows}
+
+    <div class="line"></div>
+
+    <b>TOTAL: ₹{order.total_amount}</b>
+
+    <div class="line"></div>
+
+    <div class="center">
+        Thank You!<br>
+        Visit Again
+    </div>
+
+    </body>
+    </html>
+    """
+
+    return HttpResponse(html)

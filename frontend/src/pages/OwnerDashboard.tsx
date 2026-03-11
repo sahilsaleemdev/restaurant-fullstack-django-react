@@ -45,7 +45,7 @@ export default function OwnerDashboard() {
       });
   }, []);
 
-  // Filter orders by order id or status (search)
+
   useEffect(() => {
     if (!search.trim()) {
       setFilteredOrders(orders);
@@ -65,7 +65,6 @@ export default function OwnerDashboard() {
     setSearch(e.target.value);
   };
 
-  // Show details in a modal-like simple UI
   const handleOrderClick = (order: Order) => {
     setSelectedOrder(order);
   };
@@ -89,21 +88,27 @@ export default function OwnerDashboard() {
           className="form-control w-auto"
         />
 
-<a href="/menu-manager" className="btn btn-light">
+        <a href="/menu-manager" className="btn btn-outline-dark">
             Manage Menu
         </a>
+
+        <a href="/staff" className="btn btn-outline-dark px-1">
+            Manage Staff
+        </a>
+
+
       </div>
-      <h4>Total Revenue: ₹{totalRevenue}</h4>
-      <div className="mb-3">
-        <strong>Order Status Count:</strong>
-        <ul style={{ display: "flex", gap: "1.5rem", listStyle: "none", paddingLeft: 0 }}>
-          {Object.entries(statusCounts).map(([status, count]) => (
-            <li key={status}>
-              <span className="badge bg-info text-dark">{status}</span> ({count})
-            </li>
-          ))}
-        </ul>
-      </div>
+        <h4>Total Revenue: ₹{totalRevenue}</h4>
+        <div className="mb-3">
+            <strong>Order Status Count:</strong>
+            <ul style={{ display: "flex", gap: "1.5rem", listStyle: "none", paddingLeft: 0 }}>
+            {Object.entries(statusCounts).map(([status, count]) => (
+                <li key={status}>
+                <span className="badge bg-info text-dark">{status}</span> ({count})
+                </li>
+            ))}
+            </ul>
+        </div>
       <div className="mt-3">
         {filteredOrders.length === 0 ? (
           <div className="alert alert-warning">No orders found.</div>

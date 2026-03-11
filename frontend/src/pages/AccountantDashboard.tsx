@@ -19,6 +19,7 @@ export default function AccountantDashboard() {
   const [search, setSearch] = useState("");
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [bill, setBill] = useState(null);
 
   useEffect(() => {
     fetch("http://localhost:8000/api/all-orders/", {
@@ -75,6 +76,12 @@ export default function AccountantDashboard() {
     setSelectedOrder(null);
   };
 
+
+
+  const printBill = (orderId: number) => {
+    window.open(`http://localhost:8000/api/order/${orderId}/bill/`, "_blank");
+  };
+
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -113,6 +120,9 @@ export default function AccountantDashboard() {
                 onClick={() => handleOrderClick(order)}
                 style={{ cursor: "pointer" }}
               >
+
+                
+
                 <span>
                   <strong>Order #{order.id}</strong>{" "}
                   — ₹{order.total_amount}{" "}
@@ -141,6 +151,14 @@ export default function AccountantDashboard() {
                   {order.created_at &&
                     new Date(order.created_at).toLocaleString()}
                 </span>
+
+                <button
+                  className="btn btn-sm btn-success"
+                  onClick={() => printBill(order.id)}
+                >
+                  Print Bill
+                </button>
+
               </li>
             ))}
           </ul>

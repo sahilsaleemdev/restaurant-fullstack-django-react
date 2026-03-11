@@ -6,6 +6,7 @@ function MenuManager() {
   const [price, setPrice] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     fetch("http://localhost:8000/api/menu/")
@@ -13,9 +14,11 @@ function MenuManager() {
       .then(data => setItems(data));
   }, []);
 
-
-
-
+  useEffect(() => {
+    fetch("http://localhost:8000/api/categories/")
+      .then(res => res.json())
+      .then(data => setCategories(data));
+  }, []);
 
   const addItem = async () => {
     if (!name.trim() || !price.trim() || !category) {
@@ -145,8 +148,11 @@ function MenuManager() {
           onChange={(e) => setCategory(e.target.value)}
         >
           <option value="">Select category</option>
-          <option value="1">Chicken</option>
-          <option value="2">Burger</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
         </select>
 
         <input
@@ -171,6 +177,11 @@ function MenuManager() {
 
           <h5>{item.name}</h5>
           <p>₹{item.price}</p>
+          {item.category && (
+            <p className="text-muted mb-1">
+              Category: {item.category.name}
+            </p>
+          )}
 
           <img
             src={`http://localhost:8000${item.image}`}

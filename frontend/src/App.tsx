@@ -1,17 +1,25 @@
 import { useEffect, useState } from "react";
 import Menu from "./components/Menu";
-import Cart from "./components/Cart";
 import type { MenuItem, CartItem } from "./types/types";
+import Header from "./components/Header";
+import Hero from "./components/Hero";
+import Footer from "./components/Footer";
+import CartDrawer from "./components/CartDrawer";
+import OrderStatusModal from "./components/OrderStatusModal";
 
 // Fixed endpoint: should be /api/start-order/ (not /api/start-order/:1)
 function App() {
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orderId, setOrderId] = useState<number | null>(null);
-  const [loading,setLoading] = useState(false);
   const [currentOrder, setCurrentOrder] = useState<any>(null);
   const [tables, setTables] = useState<any[]>([]);
   const [tableId, setTableId] = useState<number | null>(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [orderPlaced, setOrderPlaced] = useState(false); // Prevents duplicate orders
 
   useEffect(() => {
     fetch("http://localhost:8000/api/menu/")
@@ -23,12 +31,10 @@ function App() {
       .catch((err) => console.error(err));
   }, []);
 
-
-
   const addToCart = (item: MenuItem) => {
     setCart((prev) => {
       const exist = prev.find((i) => i.id === item.id);
-  
+
       if (exist) {
         return prev.map((i) =>
           i.id === item.id
@@ -36,29 +42,48 @@ function App() {
             : i
         );
       }
-  
+
       return [...prev, { ...item, quantity: 1 }];
     });
   };
-  
-  
+
+  // Add increase, decrease, remove functions
+  const increase = (id: number) => {
+    setCart((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    );
+  };
+
+  const decrease = (id: number) => {
+    setCart((prev) =>
+      prev
+        .map((item) =>
+          item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+        )
+        .filter((item) => item.quantity > 0)
+    );
+  };
+
+  const remove = (id: number) => {
+    setCart((prev) => prev.filter((item) => item.id !== id));
+  };
 
   useEffect(() => {
     if (!orderId) return;
-  
+
     const interval = setInterval(async () => {
       const res = await fetch(
         `http://localhost:8000/api/order/${orderId}/`
       );
       const data = await res.json();
-  
+
       setCurrentOrder(data);   // 🔥 store full order
     }, 3000);
-  
+
     return () => clearInterval(interval);
   }, [orderId]);
-
-
 
   useEffect(() => {
     fetch("http://localhost:8000/api/tables/")
@@ -66,48 +91,31 @@ function App() {
       .then((data) => setTables(data));
   }, []);
 
-
-  const increase = (id: number) => {
-    setCart((prev) => {
-      return prev.map((i) =>
-        i.id === id ? { ...i, quantity: i.quantity + 1 } : i
-      );
-    });
-  };
-
-  const decrease = (id: number) => {
-    setCart((prev) => {
-      return prev.map((i) =>
-        i.id === id ? { ...i, quantity: i.quantity - 1 } : i
-      );
-    });
-  };
-
-  const remove = (id: number) => {
-    setCart((prev) => {
-      return prev.filter((i) => i.id !== id);
-    });
-  };
+  useEffect(() => {
+    fetch("http://localhost:8000/api/categories/")
+      .then(res => res.json())
+      .then(data => setCategories(data));
+  }, []);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-
-
 
   const placeOrder = async () => {
     if (!tableId) {
       alert("Select table");
       return;
     }
-  
+
     if (cart.length === 0) {
       alert("Cart is empty");
       return;
     }
-  
+
+    if (orderPlaced) {
+      alert("Order has already been placed. You can't place another order right now.");
+      return;
+    }
+
     try {
-      setLoading(true);
-  
       // ✅ 1. Create order
       const res = await fetch(
         "http://localhost:8000/api/start-order/",
@@ -118,10 +126,10 @@ function App() {
           body: JSON.stringify({ table_id: tableId }),
         }
       );
-  
+
       const data = await res.json();
       const newOrderId = data.id;
-  
+
       // ✅ 2. Send ALL cart items
       for (const item of cart) {
         await fetch("http://localhost:8000/api/add-item/", {
@@ -135,118 +143,144 @@ function App() {
           }),
         });
       }
-  
+
       // ✅ 3. Fetch full order
       const orderRes = await fetch(
         `http://localhost:8000/api/order/${newOrderId}/`
       );
-  
+
       const orderData = await orderRes.json();
-  
+
       setCurrentOrder(orderData);
       setOrderId(newOrderId);
-  
-      alert("Order placed successfully");
-  
+
+      setShowOrderModal(true);
+
       setCart([]);
-  
+      setOrderPlaced(true);
+
     } catch (error) {
       console.error(error);
       alert("Error placing order");
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
+  const handleCancelOrder = async () => {
+    if (!currentOrder) return;
+
+    const res = await fetch(
+      `http://localhost:8000/api/cancel-order/${currentOrder.id}/`,
+      { method: "POST" }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error);
+      return;
+    }
+
+    alert("Order cancelled");
+
+    setCurrentOrder(null);
+    setOrderId(null);
+    setCart([]);
+    setShowOrderModal(false);
+    setOrderPlaced(false); // Allow a new order after cancelling
+  };
 
   return (
-    <div className="container mt-4">
-      <h1 className="text-center mb-4">Restaurant App</h1>
-  
+    <div className="container-fluid mt-4 px-0">
+
+      <Header
+        cart={cart}
+        setCartOpen={setCartOpen}
+        openOrderModal={() => {
+          if (!currentOrder) {
+            alert("No active order yet");
+            return;
+          }
+          setShowOrderModal(true);
+        }}
+      />
+
+      <Hero />
+
       <div className="row">
+        <div className="col-12">
+          <h2 className="text-center py-4">Menu</h2>
 
-        
-
-        <div className="col-md-8">
-          <h2>Menu</h2>
-
-          <select
-            className="form-select mb-3"
-            onChange={(e) => setTableId(Number(e.target.value))}
-          >
-            <option value="">Select Table</option>
-
-            {tables.map((table) => (
-              <option key={table.id} value={table.id}>
-                Table {table.table_number}
-              </option>
-            ))}
-          </select>
-
-          {!currentOrder && (
-              <Menu menu={menu} addToCart={addToCart} />
-          )}
-        </div>
-
-        {currentOrder && (
-          <div className="card p-3 mb-3">
-            <h4>Your Order</h4>
-            <p>Order #{currentOrder.id}</p>
-
-            <span className="badge bg-primary mb-2">
-              {currentOrder.status}
-            </span>
-
-            {currentOrder.items.map((item: any) => (
-              <div key={item.id}>
-                {item.menu_item.name} × {item.quantity}
-              </div>
-            ))}
-
-            <h5>Total: ₹{currentOrder.total_amount}</h5>
+          <div className="mb-4 text-center">
 
             <button
-                className="btn btn-danger mt-2"
-                onClick={async () => {
-                  const res = await fetch(
-                    `http://localhost:8000/api/cancel-order/${currentOrder.id}/`,
-                    { method: "POST" }
-                  );
+              className={`btn me-2 ${selectedCategory === null ? "btn-dark" : "btn-outline-dark"}`}
+              onClick={() => setSelectedCategory(null)}
+            >
+              All
+            </button>
 
-                  const data = await res.json();
-
-                  if (!res.ok) {
-                    alert(data.error); 
-                    return;
-                  }
-
-                  alert("Order cancelled");
-
-                  setCurrentOrder(null);
-                  setOrderId(null);
-                  setCart([]);
-                }}
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                className={`btn me-2 ${
+                  selectedCategory === cat.id ? "btn-dark" : "btn-outline-dark"
+                }`}
+                onClick={() => setSelectedCategory(cat.id)}
               >
-                Cancel Order
+                {cat.name}
               </button>
+            ))}
+
           </div>
 
-          
-        )}
-  
-        
-        <div className="col-md-4">
-          <Cart
+          <div className="mb-3 text-center">
+            <select
+              className="form-select d-inline-block w-auto border border-primary text-dark"
+              style={{ boxShadow: "none" }}
+              onChange={(e) => setTableId(Number(e.target.value))}
+            >
+              <option value="">Select Table</option>
+
+              {tables.map((table) => (
+                <option key={table.id} value={table.id}>
+                  Table {table.table_number}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Always show menu */}
+          <Menu
+            menu={menu}
+            addToCart={addToCart}
+            selectedCategory={selectedCategory}
+          />
+        </div>
+
+        {cartOpen && (
+          <CartDrawer
             cart={cart}
+            total={total}
+            placeOrder={placeOrder}
             increase={increase}
             decrease={decrease}
             remove={remove}
-            total={total}
-            placeOrder={placeOrder}
-            loading={loading}
+            close={() => setCartOpen(false)}
+            // Disable placeOrder button if order placed
+            disabled={orderPlaced}
           />
-        </div>
+        )}
       </div>
+
+      {showOrderModal && currentOrder && (
+        <OrderStatusModal
+          order={currentOrder}
+          close={() => setShowOrderModal(false)}
+          cancelOrder={handleCancelOrder}
+        />
+      )}
+
+      <Footer/>
     </div>
   );
 }

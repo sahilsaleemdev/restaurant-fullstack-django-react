@@ -4,7 +4,7 @@ from restaurant_app.models import (
     MenuItem,
     Order,
     OrderItem,
-    Payment, Table
+    Payment, Table, StaffProfile
 )
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -89,3 +89,16 @@ class TableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Table
         fields = ['id', 'table_number']
+
+
+
+
+
+
+class StaffSerializer(serializers.ModelSerializer):
+
+    username = serializers.CharField(source="user.username")
+
+    class Meta:
+        model = StaffProfile
+        fields = ["id", "username", "role", "salary"]
