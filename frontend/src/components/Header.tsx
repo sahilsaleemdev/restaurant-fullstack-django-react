@@ -14,12 +14,7 @@ function Header({ cart, setCartOpen, openOrderModal }: Props) {
           🍽 Restaurant
         </Link>
         <div className="d-flex align-items-center gap-2">
-          <button
-            className="btn btn-warning"
-            onClick={() => setCartOpen(true)}
-          >
-            🛒 Cart ({cart.length})
-          </button>
+          
 
           <button
             className="btn btn-outline-dark"
@@ -28,12 +23,19 @@ function Header({ cart, setCartOpen, openOrderModal }: Props) {
             Check Order
           </button>
 
-          <Link className="btn btn-outline-dark" to="/">
+          <a className="btn btn-outline-dark" href="#menu">
             Menu
-          </Link>
+          </a>
           <Link className="btn btn-outline-dark" to="/login">
             Staff Login
           </Link>
+
+          <button
+            className="btn btn-warning"
+            onClick={() => setCartOpen(true)}
+          >
+            🛒 Cart ({cart.length})
+          </button>
         </div>
       </div>
     </nav>

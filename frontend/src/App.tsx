@@ -6,6 +6,7 @@ import Hero from "./components/Hero";
 import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
 import OrderStatusModal from "./components/OrderStatusModal";
+import MyOrders from "./components/MyOrders";
 
 // Fixed endpoint: should be /api/start-order/ (not /api/start-order/:1)
 function App() {
@@ -19,7 +20,8 @@ function App() {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [orderPlaced, setOrderPlaced] = useState(false); // Prevents duplicate orders
+  const [orderPlaced, setOrderPlaced] = useState(false); 
+  
 
   useEffect(() => {
     fetch("http://localhost:8000/api/menu/")
@@ -95,6 +97,15 @@ function App() {
     fetch("http://localhost:8000/api/categories/")
       .then(res => res.json())
       .then(data => setCategories(data));
+  }, []);
+  
+
+  useEffect(() => {
+    const storedTable = localStorage.getItem("tableId");
+  
+    if (storedTable) {
+      setTableId(Number(storedTable));
+    }
   }, []);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -256,6 +267,8 @@ function App() {
             selectedCategory={selectedCategory}
           />
         </div>
+
+        <MyOrders tableId={tableId} currentOrderId={currentOrder?.id ?? null} />
 
         {cartOpen && (
           <CartDrawer

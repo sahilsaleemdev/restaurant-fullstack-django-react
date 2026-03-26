@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import DashboardHeader from "../components/DashboardHeader";
+import DashboardFooter from "../components/DashboardFooter";
 
 type Order = {
   id: number;
@@ -19,32 +21,45 @@ export default function AccountantDashboard() {
   const [search, setSearch] = useState("");
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [bill, setBill] = useState(null);
+
+  function getCookie(name: string) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(";").shift();
+  }
+
+  const fetchOrders = async () => {
+    const res = await fetch("http://localhost:8000/api/all-orders/", {
+      credentials: "include",
+    });
+    const data = await res.json();
+
+    setOrders(data);
+
+    // Calculate total revenue
+    const total = data.reduce(
+      (sum: number, order: Order) => sum + Number(order.total_amount),
+      0
+    );
+    setTotalRevenue(total);
+
+    // Count by order status
+    const counts: StatusCount = {};
+    data.forEach((order: Order) => {
+      counts[order.status] = (counts[order.status] || 0) + 1;
+    });
+    setStatusCounts(counts);
+
+    setFilteredOrders(data);
+  };
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/all-orders/", {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setOrders(data);
+    fetchOrders();
+  }, []);
 
-        // Calculate total revenue
-        const total = data.reduce(
-          (sum: number, order: Order) => sum + Number(order.total_amount),
-          0
-        );
-        setTotalRevenue(total);
-
-        // Count by order status
-        const counts: StatusCount = {};
-        data.forEach((order: Order) => {
-          counts[order.status] = (counts[order.status] || 0) + 1;
-        });
-        setStatusCounts(counts);
-
-        setFilteredOrders(data);
-      });
+  useEffect(() => {
+    // Ensures CSRF cookie is available for POST requests.
+    fetch("http://localhost:8000/api/get-csrf/", { credentials: "include" });
   }, []);
 
   // Filter orders by order id or status (search)
@@ -78,12 +93,36 @@ export default function AccountantDashboard() {
 
 
 
+  const handleLogout = async () => {
+    await fetch("http://localhost:8000/api/logout/", {
+      method: "POST",
+      credentials: "include",
+    });
+    window.location.href = "/login";
+  };
+
+  const updateStatus = async (id: number, status: string) => {
+    await fetch(`http://localhost:8000/api/update-status/${id}/`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken") || "",
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    fetchOrders();
+  };
+
   const printBill = (orderId: number) => {
     window.open(`http://localhost:8000/api/order/${orderId}/bill/`, "_blank");
   };
 
   return (
-    <div className="container mt-4">
+    <>
+      <DashboardHeader title="Accountant Dashboard" onLogout={handleLogout} />
+      <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Accountant Dashboard</h2>
         <input
@@ -152,12 +191,35 @@ export default function AccountantDashboard() {
                     new Date(order.created_at).toLocaleString()}
                 </span>
 
-                <button
-                  className="btn btn-sm btn-success"
-                  onClick={() => printBill(order.id)}
-                >
-                  Print Bill
-                </button>
+                <div className="d-flex align-items-center gap-2">
+                  <button
+                    className="btn btn-sm btn-success"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      printBill(order.id);
+                    }}
+                    type="button"
+                  >
+                    Print Bill
+                  </button>
+
+                  {order.status === "paid" ? (
+                    <button className="btn btn-sm btn-secondary" disabled type="button">
+                      Paid
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-sm btn-primary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateStatus(order.id, "paid");
+                      }}
+                      type="button"
+                    >
+                      Mark Paid
+                    </button>
+                  )}
+                </div>
 
               </li>
             ))}
@@ -220,6 +282,8 @@ export default function AccountantDashboard() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+      <DashboardFooter />
+    </>
   );
 }

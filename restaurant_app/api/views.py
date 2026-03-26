@@ -439,3 +439,21 @@ def order_bill(request, order_id):
     """
 
     return HttpResponse(html)
+
+
+@api_view(['GET'])
+def table_orders(request, table_id):
+
+    orders = Order.objects.filter(table_id=table_id).order_by('-created_at')
+
+    data = []
+
+    for order in orders:
+        data.append({
+            "id": order.id,
+            "status": order.status,
+            "total_amount": order.total_amount,
+            "created_at": order.created_at
+        })
+
+    return Response(data)

@@ -53,35 +53,60 @@ function Login() {
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Staff Login</h2>
-
-      <input
-        className="form-control mb-2"
-        placeholder="Username"
-        value={username}
-        autoComplete="username"
-        onChange={(e) => setUsername(e.target.value)}
-        disabled={loading}
-      />
-
-      <input
-        type="password"
-        className="form-control mb-2"
-        placeholder="Password"
-        value={password}
-        autoComplete="current-password"
-        onChange={(e) => setPassword(e.target.value)}
-        disabled={loading}
-      />
-
-      <button
-        className="btn btn-dark"
-        onClick={handleLogin}
-        disabled={loading}
+    <div
+      className="d-flex align-items-center justify-content-center"
+      style={{ minHeight: "100vh", background: "#f8f9fa" }}
+    >
+      <div
+        className="card shadow"
+        style={{
+          minWidth: 350,
+          maxWidth: 380,
+          padding: "2.5rem 2rem",
+          borderRadius: "15px",
+          border: 0,
+          background: "#fff",
+        }}
       >
-        {loading ? "Logging in..." : "Login"}
-      </button>
+        <h2 className="mb-4 text-center" style={{ fontWeight: 700 }}>Staff Login</h2>
+        <input
+          className="form-control mb-3"
+          placeholder="Username"
+          value={username}
+          autoComplete="username"
+          onChange={(e) => setUsername(e.target.value)}
+          disabled={loading}
+        />
+
+        <input
+          type="password"
+          className="form-control mb-4"
+          placeholder="Password"
+          value={password}
+          autoComplete="current-password"
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
+        />
+
+        <button
+          className="btn btn-dark w-100"
+          style={{ fontWeight: 600, letterSpacing: 1 }}
+          onClick={handleLogin}
+          disabled={loading}
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+
+        <button
+          className="btn btn-outline-secondary w-100 mt-3"
+          style={{ fontWeight: 500, letterSpacing: 1 }}
+          type="button"
+          onClick={() => navigate("/")}
+          disabled={loading}
+        >
+          Back to Main Page
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import DashboardHeader from "../components/DashboardHeader";
+import DashboardFooter from "../components/DashboardFooter";
 
 type Order = {
   id: number;
@@ -73,8 +75,18 @@ export default function OwnerDashboard() {
     setSelectedOrder(null);
   };
 
+  const handleLogout = async () => {
+    await fetch("http://localhost:8000/api/logout/", {
+      method: "POST",
+      credentials: "include",
+    });
+    window.location.href = "/login";
+  };
+
   return (
-    <div className="container mt-4">
+    <>
+      <DashboardHeader title="Owner Dashboard" onLogout={handleLogout} />
+      <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Owner Dashboard</h2>
 
@@ -207,6 +219,8 @@ export default function OwnerDashboard() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+      <DashboardFooter />
+    </>
   );
 }
