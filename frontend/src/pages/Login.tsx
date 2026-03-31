@@ -8,47 +8,31 @@ function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    // Basic validation
-    if (!username || !password) {
-      alert("Please enter both username and password.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await fetch("http://localhost:8000/api/login/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-        credentials: "include",
-      });
-
-      let data;
-      try {
-        data = await res.json();
-      } catch (e) {
-        data = {};
+    const res = await fetch("http://localhost:8000/api/login/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ username, password }),
+    });
+  
+    const data = await res.json();
+  
+    if (res.ok) {
+      // ✅ store user
+      localStorage.setItem("user", JSON.stringify(data));
+  
+      // ✅ REDIRECT BASED ON ROLE
+      if (data.role === "owner") {
+        navigate("/owner");
+      } else if (data.role === "chef") {
+        navigate("/chef");
+      } else if (data.role === "accountant") {
+        navigate("/accountant");
       }
-
-      if (res.ok && data.role) {
-        alert("Login successful");
-      
-        if (data.role === "chef") {
-          navigate("/chef");
-        } else if (data.role === "accountant") {
-          navigate("/accountant");
-        } else if (data.role === "owner") {
-          navigate("/owner");
-        }
-      } else {
-        alert(data.error || "Login failed");
-      }
-    } catch (error) {
-      alert("An error occurred, please try again.");
-    } finally {
-      setLoading(false);
+    } else {
+      alert("Login failed");
     }
   };
 

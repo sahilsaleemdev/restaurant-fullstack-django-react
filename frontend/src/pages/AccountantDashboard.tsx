@@ -91,15 +91,7 @@ export default function AccountantDashboard() {
     setSelectedOrder(null);
   };
 
-
-
-  const handleLogout = async () => {
-    await fetch("http://localhost:8000/api/logout/", {
-      method: "POST",
-      credentials: "include",
-    });
-    window.location.href = "/login";
-  };
+  // handleLogout and its usage are removed
 
   const updateStatus = async (id: number, status: string) => {
     await fetch(`http://localhost:8000/api/update-status/${id}/`, {
@@ -121,7 +113,7 @@ export default function AccountantDashboard() {
 
   return (
     <>
-      <DashboardHeader title="Accountant Dashboard" onLogout={handleLogout} />
+      <DashboardHeader title="Accountant Dashboard" />
       <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Accountant Dashboard</h2>

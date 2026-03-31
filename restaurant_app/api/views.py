@@ -236,6 +236,7 @@ def check_role(user, allowed_roles):
 
 
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def logout_view(request):
@@ -263,6 +264,9 @@ def get_csrf(request):
 
 @api_view(['DELETE'])
 def delete_menu_item(request, pk):
+    # Only allow owner to delete menu items
+    if not request.user.is_authenticated or request.user.staffprofile.role != "owner":
+        return Response({"error": "Unauthorized"}, status=403)
     item = get_object_or_404(MenuItem, id=pk)
     item.delete()
 
@@ -271,6 +275,8 @@ def delete_menu_item(request, pk):
 
 @api_view(['PATCH'])
 def toggle_item(request, pk):
+    if not request.user.is_authenticated or request.user.staffprofile.role != "owner":
+        return Response({"error": "Unauthorized"}, status=403)
     item = get_object_or_404(MenuItem, id=pk)
 
     item.is_available = not item.is_available
@@ -308,6 +314,9 @@ def category_list(request):
 @api_view(['GET'])
 def staff_list(request):
 
+    if not request.user.is_authenticated or request.user.staffprofile.role != "owner":
+        return Response({"error": "Unauthorized"}, status=403)
+
     staff = StaffProfile.objects.select_related("user").all()
 
     serializer = StaffSerializer(staff, many=True)
@@ -320,6 +329,9 @@ def staff_list(request):
 
 @api_view(['POST'])
 def add_staff(request):
+
+    if not request.user.is_authenticated or request.user.staffprofile.role != "owner":
+        return Response({"error": "Unauthorized"}, status=403)
 
     username = request.data.get("username")
     password = request.data.get("password")
@@ -346,6 +358,9 @@ def add_staff(request):
 @api_view(['DELETE'])
 def delete_staff(request, pk):
 
+    if not request.user.is_authenticated or request.user.staffprofile.role != "owner":
+        return Response({"error": "Unauthorized"}, status=403)
+
     staff = get_object_or_404(StaffProfile, id=pk)
 
     staff.user.delete()
@@ -355,6 +370,9 @@ def delete_staff(request, pk):
 
 @api_view(['PATCH'])
 def update_salary(request, pk):
+
+    if not request.user.is_authenticated or request.user.staffprofile.role != "owner":
+        return Response({"error": "Unauthorized"}, status=403)
 
     staff = get_object_or_404(StaffProfile, id=pk)
 

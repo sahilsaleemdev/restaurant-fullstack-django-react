@@ -97,14 +97,6 @@ function ChefDashboard() {
     if (parts.length === 2) return parts.pop()?.split(";").shift();
   }
 
-  const handleLogout = async () => {
-    await fetch("http://localhost:8000/api/logout/", {
-      method: "POST",
-      credentials: "include",
-    });
-    window.location.href = "/login";
-  };
-
   const fetchOrders = async () => {
     try {
       const res = await fetch("http://localhost:8000/api/all-orders/");
@@ -147,7 +139,7 @@ function ChefDashboard() {
 
   return (
     <>
-      <DashboardHeader title="Chef Dashboard" onLogout={handleLogout} />
+      <DashboardHeader title="Chef Dashboard" />
       <div className="container mt-2">
         <h5 className="mb-4">Welcome, {user?.username}</h5>
         <div className="mb-3 d-flex align-items-center gap-2">

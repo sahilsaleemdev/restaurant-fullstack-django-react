@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
+import LogoutButton from "./LogoutButton";
 
 type Props = {
   title: string;
-  onLogout: () => void;
+  onLogout?: () => void;
   homeHref?: string;
 };
 
-export default function DashboardHeader({ title, onLogout, homeHref = "/" }: Props) {
+export default function DashboardHeader({ title, homeHref = "/" }: Props) {
   return (
     <header className="bg-white text-dark py-3 mb-4 border-bottom">
       <div className="container d-flex justify-content-between align-items-center">
@@ -18,9 +19,9 @@ export default function DashboardHeader({ title, onLogout, homeHref = "/" }: Pro
             </span>
             Home
           </Link>
-          <button className="btn btn-outline-dark" style={{ height: "38px" }} onClick={onLogout} type="button">
-            Logout
-          </button>
+          <div style={{ height: "38px", display: "flex", alignItems: "center" }}>
+            <LogoutButton />
+          </div>
         </div>
       </div>
     </header>
