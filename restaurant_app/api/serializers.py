@@ -13,6 +13,12 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
+class CategoryAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'is_active']
+
+
         
 class MenuItemSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)

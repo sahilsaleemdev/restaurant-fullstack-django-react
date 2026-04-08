@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useUi } from "../components/ui/UiProvider";
 
 function MenuManager() {
+  const ui = useUi();
   const [items, setItems] = useState<any[]>([]);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -22,7 +24,11 @@ function MenuManager() {
 
   const addItem = async () => {
     if (!name.trim() || !price.trim() || !category) {
-      alert("Please fill name, price, and category");
+      ui.toast({
+        kind: "warning",
+        title: "Missing details",
+        message: "Please fill name, price, and category.",
+      });
       return;
     }
 
@@ -48,11 +54,16 @@ function MenuManager() {
         setPrice("");
         setCategory("");
         setImage(null);
+        ui.toast({ kind: "success", title: "Added", message: "Menu item added successfully." });
       } else {
-        alert(data?.error || JSON.stringify(data));
+        ui.toast({ kind: "error", title: "Add failed", message: data?.error || "Unable to add item." });
       }
     } else {
-      alert(res.ok ? "Item added" : `Error ${res.status}`);
+      ui.toast({
+        kind: res.ok ? "success" : "error",
+        title: res.ok ? "Added" : "Error",
+        message: res.ok ? "Menu item added successfully." : `Request failed (${res.status}).`,
+      });
     }
   };
 
@@ -91,8 +102,18 @@ function MenuManager() {
 
   const editItem = async (item: any) => {
 
-    const newName = prompt("New name", item.name);
-    const newPrice = prompt("New price", item.price);
+    const newName = await ui.prompt({
+      title: "Edit item name",
+      message: "Enter a new name.",
+      defaultValue: item.name,
+      confirmText: "Save",
+    });
+    const newPrice = await ui.prompt({
+      title: "Edit item price",
+      message: "Enter a new price.",
+      defaultValue: String(item.price),
+      confirmText: "Save",
+    });
   
     if (!newName || !newPrice) return;
   
@@ -114,6 +135,7 @@ function MenuManager() {
     setItems(items.map((i) =>
       i.id === item.id ? data : i
     ));
+    ui.toast({ kind: "success", title: "Updated", message: "Menu item updated." });
   };
   
 

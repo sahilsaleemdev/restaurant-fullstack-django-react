@@ -2,7 +2,7 @@ from django.urls import path
 from .views import TestAPIView, start_order, menu_list, add_item_to_order, order_detail, cancel_order, all_orders, \
     complete_order, CompleteOrderView, update_order_status, table_list, login_view, logout_view, check_auth, get_csrf, \
     delete_menu_item, toggle_item, add_menu_item, category_list, staff_list, add_staff, delete_staff, update_salary, \
-    order_bill, table_orders
+    order_bill, table_orders, category_list_all, add_category, toggle_category
 
 urlpatterns = [
     path('test/', TestAPIView.as_view()),
@@ -24,6 +24,9 @@ urlpatterns = [
     path("menu/toggle/<int:pk>/", toggle_item),
     path("menu/add/", add_menu_item),
     path('categories/', category_list),
+    path('categories/all/', category_list_all),
+    path('categories/add/', add_category),
+    path('categories/toggle/<int:pk>/', toggle_category),
     path("staff/", staff_list),
     path("staff/add/", add_staff),
     path("staff/delete/<int:pk>/", delete_staff),

@@ -7,9 +7,11 @@ import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
 import OrderStatusModal from "./components/OrderStatusModal";
 import MyOrders from "./components/MyOrders";
+import { useUi } from "./components/ui/UiProvider";
 
 // Fixed endpoint: should be /api/start-order/ (not /api/start-order/:1)
 function App() {
+  const ui = useUi();
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orderId, setOrderId] = useState<number | null>(null);
@@ -110,19 +112,23 @@ function App() {
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const placeOrder = async () => {
-    if (!tableId) {
-      alert("Select table");
+  const placeOrder = async (selectedTable: number | "") => {
+    if (selectedTable === "") {
+      ui.toast({ kind: "warning", title: "Select a table", message: "Please choose your table before placing an order." });
       return;
     }
 
+    // Keep App state in sync with CartDrawer selection
+    setTableId(selectedTable);
+    localStorage.setItem("tableId", String(selectedTable));
+
     if (cart.length === 0) {
-      alert("Cart is empty");
+      ui.toast({ kind: "info", title: "Cart is empty", message: "Add at least one item to place an order." });
       return;
     }
 
     if (orderPlaced) {
-      alert("Order has already been placed. You can't place another order right now.");
+      ui.toast({ kind: "warning", title: "Order already placed", message: "You can place another order after cancelling or completing the current one." });
       return;
     }
 
@@ -134,7 +140,7 @@ function App() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: 'include',
-          body: JSON.stringify({ table_id: tableId }),
+          body: JSON.stringify({ table_id: selectedTable }),
         }
       );
 
@@ -172,7 +178,7 @@ function App() {
 
     } catch (error) {
       console.error(error);
-      alert("Error placing order");
+      ui.toast({ kind: "error", title: "Order failed", message: "Something went wrong while placing your order." });
     } 
   };
 
@@ -187,11 +193,11 @@ function App() {
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.error);
+      ui.toast({ kind: "error", title: "Cancel failed", message: data?.error || "Unable to cancel this order." });
       return;
     }
 
-    alert("Order cancelled");
+    ui.toast({ kind: "success", title: "Order cancelled", message: "Your order has been cancelled." });
 
     setCurrentOrder(null);
     setOrderId(null);
@@ -208,7 +214,7 @@ function App() {
         setCartOpen={setCartOpen}
         openOrderModal={() => {
           if (!currentOrder) {
-            alert("No active order yet");
+            ui.toast({ kind: "info", title: "No active order", message: "Place an order first to track it here." });
             return;
           }
           setShowOrderModal(true);

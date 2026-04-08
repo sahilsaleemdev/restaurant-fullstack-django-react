@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import App from "./App";
+import { UiProvider } from "./components/ui/UiProvider";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -16,51 +17,53 @@ import RequireAuth from "./components/RequireAuth";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/owner"
-          element={
-            <RequireAuth allowedRoles={["owner"]}>
-              <OwnerDashboard />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/menu-manager"
-          element={
-            <RequireAuth allowedRoles={["owner"]}>
-              <MenuManager />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/staff"
-          element={
-            <RequireAuth allowedRoles={["owner"]}>
-              <StaffManager />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/chef"
-          element={
-            <RequireAuth allowedRoles={["chef"]}>
-              <ChefDashboard />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/accountant"
-          element={
-            <RequireAuth allowedRoles={["accountant"]}>
-              <AccountantDashboard />
-            </RequireAuth>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+    <UiProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/owner"
+            element={
+              <RequireAuth allowedRoles={["owner"]}>
+                <OwnerDashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/menu-manager"
+            element={
+              <RequireAuth allowedRoles={["owner"]}>
+                <MenuManager />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff"
+            element={
+              <RequireAuth allowedRoles={["owner"]}>
+                <StaffManager />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/chef"
+            element={
+              <RequireAuth allowedRoles={["chef"]}>
+                <ChefDashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/accountant"
+            element={
+              <RequireAuth allowedRoles={["accountant"]}>
+                <AccountantDashboard />
+              </RequireAuth>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </UiProvider>
   </React.StrictMode>
 );

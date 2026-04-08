@@ -19,7 +19,7 @@ from restaurant_app.api.serializers import (
     MenuItemSerializer,
     MenuItemCreateSerializer,
     OrderSerializer,
-    TableSerializer, CategorySerializer, StaffSerializer,
+  TableSerializer, CategorySerializer, CategoryAdminSerializer, StaffSerializer,
 )
 
 class TestAPIView(APIView):
@@ -308,6 +308,47 @@ def category_list(request):
     categories = Category.objects.filter(is_active=True)
     serializer = CategorySerializer(categories, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def category_list_all(request):
+    if not request.user.is_authenticated or request.user.staffprofile.role != "owner":
+        return Response({"error": "Unauthorized"}, status=403)
+
+    categories = Category.objects.all().order_by("name")
+    serializer = CategoryAdminSerializer(categories, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def add_category(request):
+    if not request.user.is_authenticated or request.user.staffprofile.role != "owner":
+        return Response({"error": "Unauthorized"}, status=403)
+
+    name = (request.data.get("name") or "").strip()
+    if not name:
+        return Response({"error": "Category name is required"}, status=400)
+
+    category, created = Category.objects.get_or_create(name=name)
+    if not created and not category.is_active:
+        category.is_active = True
+        category.save(update_fields=["is_active"])
+
+    return Response(
+        CategoryAdminSerializer(category).data,
+        status=201 if created else 200
+    )
+
+
+@api_view(['PATCH'])
+def toggle_category(request, pk):
+    if not request.user.is_authenticated or request.user.staffprofile.role != "owner":
+        return Response({"error": "Unauthorized"}, status=403)
+
+    category = get_object_or_404(Category, id=pk)
+    category.is_active = not category.is_active
+    category.save(update_fields=["is_active"])
+    return Response(CategoryAdminSerializer(category).data)
 
 
 

@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUi } from "../components/ui/UiProvider";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const ui = useUi();
 
   const handleLogin = async () => {
+    setLoading(true);
     const res = await fetch("http://localhost:8000/api/login/", {
       method: "POST",
       headers: {
@@ -32,8 +35,9 @@ function Login() {
         navigate("/accountant");
       }
     } else {
-      alert("Login failed");
+      ui.toast({ kind: "error", title: "Login failed", message: "Invalid username or password." });
     }
+    setLoading(false);
   };
 
   return (
