@@ -153,9 +153,13 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 CORS_ALLOW_CREDENTIALS = True
 
+#
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5173",
+# ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    "https://your-frontend-url.vercel.app"
 ]
 
 SESSION_COOKIE_SAMESITE = "Lax"
