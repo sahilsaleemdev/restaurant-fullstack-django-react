@@ -146,20 +146,17 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True
-# There is nothing wrong or incorrect with the CORS_ALLOW_ALL_ORIGINS = True line itself 
-# in Django settings. Setting this value to True means your server will accept cross-origin 
+CORS_ALLOW_ALL_ORIGINS = False
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 CORS_ALLOW_CREDENTIALS = True
 
-#
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",
-# ]
+frontend_url = os.environ.get("FRONTEND_URL", "https://your-frontend-url.vercel.app")
 
 CORS_ALLOWED_ORIGINS = [
-    "https://your-frontend-url.vercel.app"
+    "http://localhost:5173",
+    frontend_url,
 ]
 
 SESSION_COOKIE_SAMESITE = "None"
@@ -167,7 +164,6 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"
 CSRF_COOKIE_SECURE = True
 
-frontend_url = os.environ.get("FRONTEND_URL", "https://your-frontend-url.vercel.app")
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     frontend_url,
