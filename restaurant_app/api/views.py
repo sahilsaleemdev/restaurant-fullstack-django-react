@@ -22,6 +22,12 @@ from restaurant_app.api.serializers import (
   TableSerializer, CategorySerializer, CategoryAdminSerializer, StaffSerializer,
 )
 
+from rest_framework.authentication import SessionAuthentication
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening
+
 class TestAPIView(APIView):
     def get(self, request):
         return Response({"message": "API working"})

@@ -170,3 +170,9 @@ CSRF_TRUSTED_ORIGINS = [
     "https://restaurant-fullstack-django-react.onrender.com",
     "https://*.vercel.app",
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'restaurant_app.api.views.CsrfExemptSessionAuthentication',
+    )
+}
