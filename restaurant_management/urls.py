@@ -23,9 +23,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
+from restaurant_app.api.views import create_admin
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('restaurant_app.api.urls')),
+    path('create-admin/', create_admin),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
