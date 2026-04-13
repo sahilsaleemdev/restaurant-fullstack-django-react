@@ -162,9 +162,14 @@ CORS_ALLOWED_ORIGINS = [
     "https://your-frontend-url.vercel.app"
 ]
 
-SESSION_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SECURE = False  # dev only
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SECURE = True
 
+frontend_url = os.environ.get("FRONTEND_URL", "https://your-frontend-url.vercel.app")
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
+    frontend_url,
+    "https://restaurant-fullstack-django-react.onrender.com",
 ]
