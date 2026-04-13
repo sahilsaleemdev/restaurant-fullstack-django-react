@@ -26,7 +26,7 @@ function App() {
   
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/menu/")
+    fetch(`${import.meta.env.VITE_API_URL}/api/menu/`)
       .then((res) => res.json())
       .then((data) => {
         console.log("API RESPONSE:", data);
@@ -79,7 +79,7 @@ function App() {
 
     const interval = setInterval(async () => {
       const res = await fetch(
-        `http://localhost:8000/api/order/${orderId}/`
+        `${import.meta.env.VITE_API_URL}/api/order/${orderId}/`
       );
       const data = await res.json();
 
@@ -90,13 +90,13 @@ function App() {
   }, [orderId]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/tables/")
+    fetch(`${import.meta.env.VITE_API_URL}/api/tables/`)
       .then((res) => res.json())
       .then((data) => setTables(data));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/categories/")
+    fetch(`http://localhost:8000/api/categories/`)
       .then(res => res.json())
       .then(data => setCategories(data));
   }, []);
@@ -135,7 +135,7 @@ function App() {
     try {
       // ✅ 1. Create order
       const res = await fetch(
-        "http://localhost:8000/api/start-order/",
+        `${import.meta.env.VITE_API_URL}/api/start-order/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -149,7 +149,7 @@ function App() {
 
       // ✅ 2. Send ALL cart items
       for (const item of cart) {
-        await fetch("http://localhost:8000/api/add-item/", {
+        await fetch(`${import.meta.env.VITE_API_URL}/api/add-item/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -163,7 +163,7 @@ function App() {
 
       // ✅ 3. Fetch full order
       const orderRes = await fetch(
-        `http://localhost:8000/api/order/${newOrderId}/`
+        `${import.meta.env.VITE_API_URL}/api/order/${newOrderId}/`
       );
 
       const orderData = await orderRes.json();
@@ -186,7 +186,7 @@ function App() {
     if (!currentOrder) return;
 
     const res = await fetch(
-      `http://localhost:8000/api/cancel-order/${currentOrder.id}/`,
+      `${import.meta.env.VITE_API_URL}/api/cancel-order/${currentOrder.id}/`,
       { method: "POST" }
     );
 
