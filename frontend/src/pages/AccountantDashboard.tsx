@@ -29,7 +29,7 @@ export default function AccountantDashboard() {
   }
 
   const fetchOrders = async () => {
-    const res = await fetch("http://localhost:8000/api/all-orders/", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/all-orders/`, {
       credentials: "include",
     });
     const data = await res.json();
@@ -59,7 +59,7 @@ export default function AccountantDashboard() {
 
   useEffect(() => {
     // Ensures CSRF cookie is available for POST requests.
-    fetch("http://localhost:8000/api/get-csrf/", { credentials: "include" });
+    fetch(`${import.meta.env.VITE_API_URL}/api/get-csrf/`, { credentials: "include" });
   }, []);
 
   // Filter orders by order id or status (search)
@@ -94,7 +94,7 @@ export default function AccountantDashboard() {
   // handleLogout and its usage are removed
 
   const updateStatus = async (id: number, status: string) => {
-    await fetch(`http://localhost:8000/api/update-status/${id}/`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/update-status/${id}/`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -108,7 +108,7 @@ export default function AccountantDashboard() {
   };
 
   const printBill = (orderId: number) => {
-    window.open(`http://localhost:8000/api/order/${orderId}/bill/`, "_blank");
+    window.open(`${import.meta.env.VITE_API_URL}/api/order/${orderId}/bill/`, "_blank");
   };
 
   return (

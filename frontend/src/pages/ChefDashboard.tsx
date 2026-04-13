@@ -22,7 +22,7 @@ function ChefDashboard() {
   const csrftoken = getCookie("csrftoken");
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/all-orders/")
+    fetch(`${import.meta.env.VITE_API_URL}/api/all-orders/`)
       .then((res) => res.json())
       .then((data) => {
         setOrders(data);
@@ -31,13 +31,13 @@ function ChefDashboard() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/get-csrf/", {
+    fetch(`${import.meta.env.VITE_API_URL}/api/get-csrf/`, {
       credentials: "include",
     });
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/check-auth/", {
+    fetch(`${import.meta.env.VITE_API_URL}/api/check-auth/`, {
       credentials: "include",
     })
       .then((res) => {
@@ -99,7 +99,7 @@ function ChefDashboard() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/all-orders/");
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/all-orders/`);
       const data = await res.json();
       setOrders(data);
       // Also update filtered orders when refetching all
@@ -111,7 +111,7 @@ function ChefDashboard() {
 
   const updateStatus = async (id: number, status: string) => {
     try {
-      await fetch(`http://localhost:8000/api/update-status/${id}/`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/update-status/${id}/`, {
         method: "POST",
         credentials: "include",
         headers: {

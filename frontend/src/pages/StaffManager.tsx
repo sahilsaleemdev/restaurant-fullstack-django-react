@@ -29,7 +29,7 @@ function StaffManager() {
 
   const ensureCsrfCookie = async () => {
     // Backend exposes GET /api/get-csrf/ to set csrftoken cookie
-    await fetch("http://localhost:8000/api/get-csrf/", {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/get-csrf/`, {
       method: "GET",
       credentials: "include",
     }).catch(() => null);
@@ -57,7 +57,7 @@ function StaffManager() {
   };
 
   const fetchStaff = () => {
-    authedFetch("http://localhost:8000/api/staff/")
+    authedFetch(`${import.meta.env.VITE_API_URL}/api/staff/`)
       .then(res => res.json())
       .then(data => setStaff(data));
   };
@@ -75,7 +75,7 @@ function StaffManager() {
     });
     if (!ok) return;
     await authedFetch(
-      `http://localhost:8000/api/staff/delete/${id}/`,
+      `${import.meta.env.VITE_API_URL}/api/staff/delete/${id}/`,
       { method: "DELETE" }
     );
     fetchStaff();
@@ -92,7 +92,7 @@ function StaffManager() {
     });
     if (!newSalary) return;
     await authedFetch(
-      `http://localhost:8000/api/staff/salary/${id}/`,
+      `${import.meta.env.VITE_API_URL}/api/staff/salary/${id}/`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -107,7 +107,7 @@ function StaffManager() {
       ui.toast({ kind: "warning", title: "Missing fields", message: "Username, password and salary are required." });
       return;
     }
-    const res = await authedFetch("http://localhost:8000/api/staff/add/", {
+    const res = await authedFetch(`${import.meta.env.VITE_API_URL}/api/staff/add/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -70,7 +70,7 @@ function CartDrawer({
     setTablesLoading(true);
     setTablesError(null);
 
-    fetch("http://localhost:8000/api/tables/")
+    fetch(`${import.meta.env.VITE_API_URL}/api/tables/`)
       .then((res) => {
         if (!res.ok) throw new Error(`Failed to load tables (${res.status})`);
         return res.json();

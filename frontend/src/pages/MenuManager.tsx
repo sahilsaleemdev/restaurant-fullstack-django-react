@@ -11,13 +11,13 @@ function MenuManager() {
   const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/menu/")
+    fetch(`${import.meta.env.VITE_API_URL}/api/menu/`)
       .then(res => res.json())
       .then(data => setItems(data));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/categories/")
+    fetch(`${import.meta.env.VITE_API_URL}/api/categories/`)
       .then(res => res.json())
       .then(data => setCategories(data));
   }, []);
@@ -40,7 +40,7 @@ function MenuManager() {
       formData.append("image", image);
     }
 
-    const res = await fetch("http://localhost:8000/api/menu/add/", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/menu/add/`, {
       method: "POST",
       body: formData,
     });
@@ -72,7 +72,7 @@ function MenuManager() {
   const deleteItem = async (id: number) => {
 
     const res = await fetch(
-      `http://localhost:8000/api/menu/delete/${id}/`,
+      `${import.meta.env.VITE_API_URL}/api/menu/delete/${id}/`,
       { method: "DELETE" }
     );
   
@@ -85,7 +85,7 @@ function MenuManager() {
   const toggleItem = async (id: number) => {
 
     const res = await fetch(
-      `http://localhost:8000/api/menu/toggle/${id}/`,
+      `${import.meta.env.VITE_API_URL}/api/menu/toggle/${id}/`,
       { method: "PATCH" }
     );
   
@@ -118,7 +118,7 @@ function MenuManager() {
     if (!newName || !newPrice) return;
   
     const res = await fetch(
-      `http://localhost:8000/api/menu/update/${item.id}/`,
+      `${import.meta.env.VITE_API_URL}/api/menu/update/${item.id}/`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -206,7 +206,7 @@ function MenuManager() {
           )}
 
           <img
-            src={`http://localhost:8000${item.image}`}
+            src={`${import.meta.env.VITE_API_URL}${item.image}`}
             width="120"
           />
 

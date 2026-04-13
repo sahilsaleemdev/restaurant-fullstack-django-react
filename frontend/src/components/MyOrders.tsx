@@ -92,7 +92,7 @@ function MyOrders({
       setError(null);
 
       const res = await fetch(
-        `http://localhost:8000/api/table/${tableId}/orders/`
+        `${import.meta.env.VITE_API_URL}/api/table/${tableId}/orders/`
       );
       let data: Order[] = [];
       if (res.ok) {

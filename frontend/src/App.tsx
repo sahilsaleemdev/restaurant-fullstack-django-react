@@ -96,7 +96,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/categories/`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/categories/`)
       .then(res => res.json())
       .then(data => setCategories(data));
   }, []);

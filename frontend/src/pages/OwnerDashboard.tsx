@@ -41,7 +41,7 @@ export default function OwnerDashboard() {
   };
 
   const ensureCsrfCookie = async () => {
-    await fetch("http://localhost:8000/api/get-csrf/", {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/get-csrf/`, {
       method: "GET",
       credentials: "include",
     }).catch(() => null);
@@ -62,7 +62,7 @@ export default function OwnerDashboard() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/all-orders/", {
+    fetch(`${import.meta.env.VITE_API_URL}/api/all-orders/`, {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -88,7 +88,7 @@ export default function OwnerDashboard() {
 
   const refreshCategories = async () => {
     setCategoryError(null);
-    const res = await authedFetch("http://localhost:8000/api/categories/all/");
+    const res = await authedFetch(`${import.meta.env.VITE_API_URL}/api/categories/all/`);
     const data = await res.json().catch(() => null);
     if (!res.ok) {
       setCategoryError(data?.error || "Failed to load categories");
@@ -110,7 +110,7 @@ export default function OwnerDashboard() {
     setCategoryBusy(true);
     setCategoryError(null);
     try {
-      const res = await authedFetch("http://localhost:8000/api/categories/add/", {
+      const res = await authedFetch(`${import.meta.env.VITE_API_URL}/api/categories/add/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
@@ -132,7 +132,7 @@ export default function OwnerDashboard() {
     setCategoryError(null);
     try {
       const res = await authedFetch(
-        `http://localhost:8000/api/categories/toggle/${id}/`,
+        `${import.meta.env.VITE_API_URL}/api/categories/toggle/${id}/`,
         { method: "PATCH" }
       );
       const data = await res.json().catch(() => null);

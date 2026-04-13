@@ -13,7 +13,7 @@ export default function LogoutButton() {
       const csrftoken = getCookie("csrftoken");
 
       try {
-        await fetch("http://localhost:8000/api/logout/", {
+        await fetch(`${import.meta.env.VITE_API_URL}/api/logout/`, {
           method: "POST",
           credentials: "include",
           headers: csrftoken ? { "X-CSRFToken": csrftoken } : undefined,
