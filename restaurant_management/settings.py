@@ -146,7 +146,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -168,4 +168,5 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     frontend_url,
     "https://restaurant-fullstack-django-react.onrender.com",
+    "https://*.vercel.app",
 ]
