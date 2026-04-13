@@ -173,6 +173,6 @@ CSRF_TRUSTED_ORIGINS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'restaurant_app.api.views.CsrfExemptSessionAuthentication',
+        'restaurant_app.api.auth.CsrfExemptSessionAuthentication',
     )
 }
