@@ -206,7 +206,7 @@ function MenuManager() {
           )}
 
           <img
-            src={`${import.meta.env.VITE_API_URL}${item.image}`}
+            src={`${import.meta.env.VITE_API_URL?.replace(/\/+$/, '')}${item.image}`}
             width="120"
           />
 
