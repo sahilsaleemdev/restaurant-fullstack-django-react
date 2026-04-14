@@ -175,7 +175,7 @@ class CompleteOrderView(APIView):
 @permission_classes([IsAuthenticated])
 def update_order_status(request, order_id):
 
-    if not check_role(request.user, ['chef']):
+    if not check_role(request.user, ['chef', 'accountant', 'owner']):
         return Response({'error': 'Unauthorized'}, status=403)
 
     order = get_object_or_404(Order, id=order_id)

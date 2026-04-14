@@ -90,7 +90,7 @@ function App() {
   }, [orderId]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/tables/`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/tables/`, { credentials: "include" })
       .then((res) => res.json())
       .then((data) => setTables(data));
   }, []);
@@ -163,7 +163,8 @@ function App() {
 
       // ✅ 3. Fetch full order
       const orderRes = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/order/${newOrderId}/`
+        `${import.meta.env.VITE_API_URL}/api/order/${newOrderId}/`,
+        { credentials: "include" }
       );
 
       const orderData = await orderRes.json();
@@ -187,7 +188,7 @@ function App() {
 
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/api/cancel-order/${currentOrder.id}/`,
-      { method: "POST" }
+      { method: "POST", credentials: "include" }
     );
 
     const data = await res.json();

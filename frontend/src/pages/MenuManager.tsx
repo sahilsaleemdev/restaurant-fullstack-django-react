@@ -42,6 +42,7 @@ function MenuManager() {
 
     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/menu/add/`, {
       method: "POST",
+      credentials: "include",
       body: formData,
     });
 
@@ -73,7 +74,7 @@ function MenuManager() {
 
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/api/menu/delete/${id}/`,
-      { method: "DELETE" }
+      { method: "DELETE", credentials: "include" }
     );
   
     if (res.ok) {
@@ -86,7 +87,7 @@ function MenuManager() {
 
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/api/menu/toggle/${id}/`,
-      { method: "PATCH" }
+      { method: "PATCH", credentials: "include" }
     );
   
     const data = await res.json();
@@ -122,6 +123,7 @@ function MenuManager() {
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           name: newName,
           price: newPrice,
